@@ -1,18 +1,21 @@
 package com.example.uselessmachine;
 
+import android.graphics.Color;
 import android.os.CountDownTimer;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
-import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
     private Button buttonSelfDestruct;
     private Switch switchUseless;
+    private ConstraintLayout bgelement;
     
     public static final String TAG = MainActivity.class.getSimpleName();
 
@@ -26,20 +29,51 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setListeners() {
-        //TODO self destruct button
-
-        //TODO self-resetting switch
+        buttonSelfDestruct.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startSelfDestructSequence();
+            }
+        });
         switchUseless.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked){
-                    Toast.makeText(MainActivity.this, "On", Toast.LENGTH_SHORT).show();
                     startSwitchOffTimer();
-                } else {
-                    Toast.makeText(MainActivity.this, "Off", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+    }
+
+    private void startSelfDestructSequence() {
+        buttonSelfDestruct.setEnabled(false);
+        switchUseless.setEnabled(false);
+        buttonSelfDestruct.setText(getString(R.string.main_destruct)+" "+10);
+        Log.d(TAG, "startSelfDestructSequence: Self-destruct started");
+        startSelfDestructTimer();
+    }
+
+    private void startSelfDestructTimer() {
+        new CountDownTimer(10000,500){
+            @Override
+            public void onTick(long millisUntilFinished) {
+                if(millisUntilFinished%1000<500){
+                    buttonSelfDestruct.setText(getString(R.string.main_destruct)+" "+Math.floor(millisUntilFinished/1000));
+                    if(millisUntilFinished<3500){
+                        bgelement.setBackgroundColor(Color.argb(255,255,0,0));
+                    }
+                    Log.d(TAG, "onTick: Timer updated");
+                } else {
+                    if(millisUntilFinished<3500){
+                        bgelement.setBackgroundColor(Color.argb(255,255,255,255));
+                    }
+                }
+            }
+            @Override
+            public void onFinish() {
+                finish();
+            }
+        }.start();
     }
 
     private void startSwitchOffTimer() {
@@ -62,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
     private void wireWidgets() {
         buttonSelfDestruct=findViewById(R.id.button_main_selfdestruct);
         switchUseless=findViewById(R.id.switch_main_useless);
+        bgelement=findViewById(R.id.layout);
     }
 
 }
